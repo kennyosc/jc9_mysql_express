@@ -1,6 +1,7 @@
 const conn = require('../connection')
 const router = require('express').Router()
 const bcrypt = require('bcrypt')
+const fs = require('fs')
 const multer = require('multer')
 
 const isEmail = require('validator/lib/isEmail')
@@ -158,6 +159,39 @@ router.get('/users/avatar/:image', (req,res)=>{
         if(err) return res.send(err)
     })
     
+})
+
+//DELETE AVATAR FROM USER
+router.delete('/users/avatar', (req,res)=>{
+    console.log(req.body.username)
+    const sql = `SELECT * FROM users where username = '${req.body.username}'`
+    const sql2 = `UPDATE users SET avatar = null WHERE username = '${req.body.username}'`
+
+    conn.query(sql, (err,results)=>{
+        if(err){
+            return res.send(err)
+        }
+
+        //name file
+        const filename = results[0].avatar
+        const imgpath = photosdir + '/' + filename
+        
+        //delete image
+        fs.unlink(imgpath, (err)=>{
+            if(err){
+                return res.send(err)
+            }
+
+            // mengubah menjadi null
+            conn.query(sql2,(err,results2)=>{
+                if(err){
+                    return res.send(err)
+                }
+
+                res.send('Delete berhasil')
+            })
+        })
+    })
 })
 
 module.exports = router
