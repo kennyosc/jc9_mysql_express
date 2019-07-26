@@ -29,7 +29,7 @@ const folder = multer.diskStorage(
             mimetype: 'image/jpeg' }
             */
            // di postman, harus di atasnya uname dulu, baru di bawahnya upload file avatar
-            cb(null, Date.now() + '_' +req.body.uname + path.extname(file.originalname))
+            cb(null, Date.now() + '_' + file.fieldname + path.extname(file.originalname))
         }
     }
 )
