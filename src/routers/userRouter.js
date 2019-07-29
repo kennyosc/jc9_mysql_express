@@ -194,6 +194,20 @@ router.delete('/users/avatar', (req,res)=>{
     })
 })
 
+// READ PROFILE
+router.get('/users/profile/:username', (req,res)=>{
+    const sql = 'SELECT * FROM users WHERE username = ?'
+    const data = req.params.usernamme
+
+    conn.query(sql,data, (err,results)=>{
+        if(err){
+            res.send(err)
+        }
+        //hasil dari results adalah an array of objects
+        res.send(results)
+    })
+})
+
 module.exports = router
 
 /* 
