@@ -155,6 +155,8 @@ router.get('/users/avatar/:image', (req,res)=>{
 
     //res.sendFile(path [, options] [, fn])
     // Transfers the file at the given path
+    //res.sendFile itu untuk  respon dari Node untuk mengirimkan image yang kita cari
+    // image yang kita cari terdapat di const options dengan parameter filename
     res.sendFile(filename, options, function(err){
         if(err) return res.send(err)
     })
@@ -167,6 +169,7 @@ router.delete('/users/avatar', (req,res)=>{
     const sql = `SELECT * FROM users where username = '${req.body.username}'`
     const sql2 = `UPDATE users SET avatar = null WHERE username = '${req.body.username}'`
 
+    //MENCARI USERNYA TERLEBIH DAHULU
     conn.query(sql, (err,results)=>{
         if(err){
             return res.send(err)
@@ -176,7 +179,7 @@ router.delete('/users/avatar', (req,res)=>{
         const filename = results[0].avatar
         const imgpath = photosdir + '/' + filename
         
-        //delete image
+        //DELETE IMAGE SETELAH KETEMU USERNYA
         fs.unlink(imgpath, (err)=>{
             if(err){
                 return res.send(err)
@@ -196,15 +199,87 @@ router.delete('/users/avatar', (req,res)=>{
 
 // READ PROFILE
 router.get('/users/profile/:username', (req,res)=>{
-    const sql = 'SELECT * FROM users WHERE username = ?'
-    const data = req.params.usernamme
+    // query sql akan menentukan hasil yang diinginkan apa saja
+    const sql = 'SELECT username, name,email FROM users WHERE username = ?'
+    const data = req.params.username
 
     conn.query(sql,data, (err,results)=>{
         if(err){
             res.send(err)
         }
         //hasil dari results adalah an array of objects
-        res.send(results)
+        /* 
+        [
+            {
+                "id": 1,
+                "username": "kennyosc",
+                "name": "Kenny Oscar",
+                "email": "kenny@gmail.com",
+                "password": "$2b$08$dUIeOmx6cKHqppqvZBK/ruvAQFZGHtflo.uJCHl3OWk0Q2myqgywO",
+                "avatar": "1564116736412_apatar.jpg",
+                "verified": 0
+            }
+        ]
+        */
+        const user = results[0]
+
+        if(!user){
+            res.send('User not found')
+        }
+        
+        res.send(user)
+    })
+})
+
+//UPDATE PROFILE
+router.patch('/users/profile/:username', (req,res)=>{
+    //query apa yang ingin dijalankan untuk update
+    // bisa menggunakan 2 '?'
+    // SET ? tidak perlu di specify mau update apanya, karena di postman akan dibuat dalam bentuk object... mungkin di front-end juga harus dalam bentuk object?
+    /*
+    ini di dalam req.body
+    {
+	"username":"hennytirta",
+	"name":"Henny Tirta",
+	"email":"henny@gmail.com"
+    }
+    */
+    const sql = 'UPDATE users SET ? WHERE username = ?'
+    // karena ? lebih dari 1, maka const data akan menggunakan array
+    // pengisian data nya harus urut SESUAI DENGAN '?' yang ada 
+    const data = [req.body, req.params.username]
+
+    conn.query(sql, data, (err,results)=>{
+        if(err){
+            res.send(err)
+        }
+
+        /*
+        {
+            "fieldCount": 0,
+            "affectedRows": 1,
+            "insertId": 0,
+            "serverStatus": 2,
+            "warningCount": 0,
+            "message": "(Rows matched: 1  Changed: 1  Warnings: 0",
+            "protocol41": true,
+            "changedRows": 1
+        }
+        */
+       // jika kita tidak mau lihat data yang di update, maka langsung res.send(results)
+       // REMEMBER, you can only res.send 1 time.
+        // res.send(results)
+
+        //jika kita mau liat hasilnya seperti apa, maka harus dibuat query sql kedua
+        const sql2 = `SELECT username,name, email FROM users WHERE username= '${req.params.username}'`
+
+        conn.query(sql2, (err,results)=>{
+            if(err){
+                res.send(err)
+            }
+
+            res.send(results[0])
+        })
     })
 })
 
