@@ -8,6 +8,7 @@ const isEmail = require('validator/lib/isEmail')
 const path = require('path')
 
 const verifyEmail = require('../nodemailer/kirimemail.js')
+const port = require('../config/port.js')
 
 //npm i --save nodemailer
 // untuk send email verifikasi / email apapun
@@ -245,7 +246,7 @@ router.get('/users/profile/:username', (req,res)=>{
             username: username,
             name: name,
             email: email,
-            avatar: `localhost:2019/users/avatar/${avatar}`
+            avatar: `localhost:${port}/users/avatar/${avatar}`
         })
 
         /*

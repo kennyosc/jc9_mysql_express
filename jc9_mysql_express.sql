@@ -16,9 +16,13 @@ CREATE TABLE tasks(
 id INT PRIMARY KEY auto_increment,
 user_id INT NOT NULL,
 description VARCHAR(255) NOT NULL,
-completed boolean default false
+completed boolean default false,
+CONSTRAINT FK_userId
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+drop table tasks;
 select * from users;
+select * from tasks;
 
 ALTER USER 'kennyosc'@'localhost' IDENTIFIED WITH mysql_native_password BY 'K3nnymysql'
