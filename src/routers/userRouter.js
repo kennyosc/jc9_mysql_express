@@ -7,6 +7,11 @@ const multer = require('multer')
 const isEmail = require('validator/lib/isEmail')
 const path = require('path')
 
+const verifyEmail = require('../nodemailer/kirimemail.js')
+
+//npm i --save nodemailer
+// untuk send email verifikasi / email apapun
+
 // PHOTO DIRECTORY
 const rootdir = path.join(__dirname,'/../..')
 //C:\Users\Kenny Oscar\Desktop\JC-9\jc9_backEndDev\jc9_sql_express
@@ -57,6 +62,7 @@ router.post('/users', (req,res)=>{
     // var {username,name,email,password} = req.body
 
     //ada cara yang lebih singkat untuk membuat sql query
+    // SET itu datang dari npm mysql, dimana akan diconvert jadi INSERT INTO ... VALUES...
     const sql1 = 'INSERT INTO users SET ?'
     const sql2 = 'SELECT * FROM users where id = ?'
     const data = req.body
@@ -100,6 +106,10 @@ router.post('/users', (req,res)=>{
             if(err){
                 return res.send(err)
             }
+
+            // ini adalah sebuah function yang diambil dari kirimemail.js
+            //kirim email verifikasi
+            verifyEmail(results2[0])
 
             res.send(results2)
         })
@@ -146,12 +156,12 @@ router.post('/users/avatar', uploadStore.single('apatar'),(req,res)=>{
 
 
 // READ IMAGE
-router.get('/users/avatar/:image', (req,res)=>{
+router.get('/users/avatar/:imageName', (req,res)=>{
     const options = {
         root: photosdir
     }
 
-    const filename = req.params.image
+    const filename = req.params.imageName
 
     //res.sendFile(path [, options] [, fn])
     // Transfers the file at the given path
@@ -199,8 +209,8 @@ router.delete('/users/avatar', (req,res)=>{
 
 // READ PROFILE
 router.get('/users/profile/:username', (req,res)=>{
-    // query sql akan menentukan hasil yang diinginkan apa saja
-    const sql = 'SELECT username, name,email FROM users WHERE username = ?'
+    // query sql akan menentukan hasil yang diinginkan apa saja, jika kita akhirnya membutuhkan avatar, maka harus SELECT avatar
+    const sql = 'SELECT username, name,email,avatar FROM users WHERE username = ?'
     const data = req.params.username
 
     conn.query(sql,data, (err,results)=>{
@@ -227,7 +237,31 @@ router.get('/users/profile/:username', (req,res)=>{
             res.send('User not found')
         }
         
-        res.send(user)
+        //link yang kita masukkan di <img src=''>, itu akan di send dari backend.
+        // makanya kita harus res.send()  avatar yang berupa link
+        const {username,name,email,avatar} = user
+        res.send({
+            user:user,
+            username: username,
+            name: name,
+            email: email,
+            avatar: `localhost:2019/users/avatar/${avatar}`
+        })
+
+        /*
+        {
+            "user": {
+                "username": "kennyosc",
+                "name": "Kenny Oscar",
+                "email": "kenny@gmail.com",
+                "avatar": "1564116736412_apatar.jpg"
+            },
+            "username": "kennyosc",
+            "name": "Kenny Oscar",
+            "email": "kenny@gmail.com",
+            "avatar": "localhost:2019/users/avatar/1564116736412_apatar.jpg"
+        }
+        */
     })
 })
 
@@ -267,7 +301,7 @@ router.patch('/users/profile/:username', (req,res)=>{
         }
         */
        // jika kita tidak mau lihat data yang di update, maka langsung res.send(results)
-       // REMEMBER, you can only res.send 1 time.
+       // REMEMBER, you can only res.send 1 time
         // res.send(results)
 
         //jika kita mau liat hasilnya seperti apa, maka harus dibuat query sql kedua
@@ -279,7 +313,28 @@ router.patch('/users/profile/:username', (req,res)=>{
             }
 
             res.send(results[0])
+            /*
+            {
+                "username": "yoshuakelvin",
+                "name": "Yoshua Kelvin Winaga",
+                "email": "yoshuakelvin@gmail.com"
+            }
+            */
         })
+    })
+})
+
+//VERIFY USER
+// ini .get karena ingin menampilkan di browser 'VERIFIKASI BERHASIL'
+// sama seperti web pada umumnya, setelah klik verifikasi, website akan get untuk menunjukkan page verifikasi berhasil
+router.get('/verify', (req,res)=>{
+    const sql = `UPDATE users SET verified = true WHERE username = '${req.query.username}'`
+
+    conn.query(sql, (err,results)=>{
+        if(err){
+            return res.send(err)
+        }
+        res.send(`<h1>Verifikasi berhasil</h1>`)
     })
 })
 

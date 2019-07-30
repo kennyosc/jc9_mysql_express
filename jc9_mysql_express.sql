@@ -12,6 +12,13 @@ CREATE TABLE users (
     verified BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE tasks(
+id INT PRIMARY KEY auto_increment,
+user_id INT NOT NULL,
+description VARCHAR(255) NOT NULL,
+completed boolean default false
+);
+
 select * from users;
 
 ALTER USER 'kennyosc'@'localhost' IDENTIFIED WITH mysql_native_password BY 'K3nnymysql'
