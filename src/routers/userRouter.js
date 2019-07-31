@@ -246,7 +246,8 @@ router.get('/users/profile/:username', (req,res)=>{
             username: username,
             name: name,
             email: email,
-            avatar: `localhost:${port}/users/avatar/${avatar}`
+            //karena sekarang api kita ada di heroku. dan di dalam heroku, itu nanti nyambung lagi ke MySQL
+            avatar: `https://kennyjc9mysql.herokuapp.com/users/avatar/${avatar}`
         })
 
         /*
