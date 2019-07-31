@@ -14,7 +14,7 @@ server.use(userRouter)
 server.use(taskRouter)
 
 server.get('/', (req,res)=>{
-    res.render('./src/views/Home.js')
+    res.send('<h1>Selamat datang di Heroku API</h1>')
 })
 
 
