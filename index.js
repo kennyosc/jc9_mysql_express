@@ -14,7 +14,7 @@ server.use(userRouter)
 server.use(taskRouter)
 
 server.get('/', (req,res)=>{
-    req.render('./src/views/Home.js')
+    res.render('./src/views/Home.js')
 })
 
 
