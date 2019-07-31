@@ -1,5 +1,5 @@
 const express = require('express')
-const server = express()
+const app = express()
 const mysql = require('mysql')
 const port2 = require('./src/config/port.js')
 
@@ -10,9 +10,9 @@ const port = port2
 const userRouter = require('./src/routers/userRouter.js')
 const taskRouter = require('./src/routers/taskRouter.js')
 
-server.use(express.json())
-server.use(userRouter)
-server.use(taskRouter)
+app.use(express.json())
+app.use(userRouter)
+app.use(taskRouter)
 
 
 server.listen(port, ()=>{
