@@ -13,6 +13,10 @@ server.use(express.json())
 server.use(userRouter)
 server.use(taskRouter)
 
+server.get('/', (req,res)=>{
+    req.render('./src/views/Home.js')
+})
+
 
 server.listen(port, ()=>{
     console.log('Connected to port ' + port)
